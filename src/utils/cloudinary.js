@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
+import path from "path";
 
 // Configuration this line connects your Node.js app to your Cloudinary account using your API credentials (just like logging in).
 cloudinary.config({
@@ -17,10 +18,14 @@ const uploadOnCloudinary = async (localFilePath) => {
     const response = await cloudinary.uploader.upload(localFilePath, {
       resource_type: "auto",
     });
-
+    
+    fs.unlinkSync(localFilePath);
     console.log("file has uploaded sucessfully", response);
+    return response;
+
   } catch (error) {
-    fs.unlinkSync(localFilePath); //remove the local saved temp file as failed to upload to cloudinary
+     console.error("Cloudinary upload error:", error);
+      fs.unlinkSync(localFilePath) // remove the locally saved temporary file as the upload operation got failed
     return null;
   }
 };

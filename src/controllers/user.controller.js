@@ -36,10 +36,10 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
 
-console.log("avatar file info: ",req.files.avatar)
+// console.log("avatar file info: ",req.files.avatar)
 
-const avatarLocalPath = req.files.avatar?.[0]?.path;
-const coverImageLocalPath = req.files.coverImage?.[0]?.path;
+const avatarLocalPath = req.files?.avatar?.[0]?.path;
+const coverImageLocalPath = req.files?.coverImage?.[0]?.path;
 console.log(avatarLocalPath)
 
 if(!avatarLocalPath){
@@ -63,16 +63,17 @@ const user = await User.create({
 
 })
 
-const createdUser = User.findById(user._id).select(
+const createdUser =await User.findById(user._id).select(
   "-password -refreshToken"
 )
+// console.log("createduser log",createdUser)
 
 if(!createdUser){
   throw new ApiError(500," something went wrong while registering the user")
 }
 
 return res.status(201).json(
-  new ApiResponse(200,"User registred sucessfully")
+  new ApiResponse(200,createdUser,"User registred sucessfully")
 )
 
 });

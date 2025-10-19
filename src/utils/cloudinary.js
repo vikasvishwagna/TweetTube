@@ -1,6 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
-import path from "path";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Configuration this line connects your Node.js app to your Cloudinary account using your API credentials (just like logging in).
 cloudinary.config({
@@ -8,6 +9,8 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+// console.log('ccccc',cloudinary.config());
+
 
 //after the congig, we upload the file,img,video to cloudinary
 
@@ -20,7 +23,7 @@ const uploadOnCloudinary = async (localFilePath) => {
     });
     
     fs.unlinkSync(localFilePath);
-    console.log("file has uploaded sucessfully", response);
+    // console.log("file has uploaded sucessfully", response);
     return response;
 
   } catch (error) {

@@ -4,6 +4,26 @@ import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js"
 
+
+
+const generateAccessAndRefreshTokens = async (userId)=>{
+  try {
+    const user = User.findById(userId);
+    const accessToken = await User.generateAccessTokens();
+    const refreshToken = await User.generateRefreshTokens();
+
+    user.refreshToken = refreshToken;
+    user.save({ validateBeforeSave: false })
+
+    return { accessToken, refreshToken }
+
+  } catch (error) {
+    throw new ApiError(500, "Something went wrong while generating accessToken and refresh Token")
+  }
+
+
+}
+
 const registerUser = asyncHandler(async (req, res) => {
   // Steps to register a new user:
   // 1️.Extract user details from the request body (sent from the frontend).
@@ -78,4 +98,53 @@ return res.status(201).json(
 
 });
 
-export { registerUser };
+const loginUser = asyncHandler(async (req, res)=>{
+  //Extract  details from req body -> username || email, password
+  //check if user with userName or email is present
+  //password check
+  //access and refresh token 
+  //send cookies
+
+  const {userName, email, password} = req.body
+
+  if(!email || !userName){
+    throw new ApiError(400, "userName or email is required")
+  }
+
+  const user = User.findOne({
+    $or : [{ userName }, { email }]
+  });
+
+  if(!user){
+    throw new ApiError(404, "user does not exist")
+  }
+
+  const isPasswordValid = await User.isPasswordCorrect(password);
+
+  if(!isPasswordValid){
+    throw new ApiError(400, "invalid credentials")
+  }
+
+  const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user._id);
+
+  const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
+
+  const options = {
+    httpOnly: true,
+    secure: true
+  }
+
+  return res
+  .status(200)
+  .cookie("accessToken", accessToken, options)
+  .cookie("refreshToken", refreshToken, options)
+  .json(new ApiResponse(
+    200,
+    {
+      user: loggedInUser, accessToken, refreshToken
+    },
+    "user loggedIn sucessfully"
+  ))
+})
+
+export { registerUser, loginUser };

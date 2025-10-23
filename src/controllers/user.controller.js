@@ -147,4 +147,39 @@ const loginUser = asyncHandler(async (req, res)=>{
   ))
 })
 
-export { registerUser, loginUser };
+
+
+const logoutUser = asyncHandler(async(req, res)=>{
+   //get user 
+   //here we cant get user directly using req.body, so we use cookies to get data.(in middleware)
+   //unset access token.
+
+   User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        refreshToken : undefined
+      }
+    },
+    {
+      new : true
+    }
+   )
+
+   const options={
+    httpOnly: true,
+    secure: true
+   }
+
+   res
+   .status(200)
+   .clearCookie("accessToken", options)
+   .clearCookie("refreshToken", options)
+   .json(new ApiResponse(200, {}, "user loggedOut"))
+
+
+   
+});
+  
+
+export { registerUser, loginUser, logoutUser };

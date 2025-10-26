@@ -19,7 +19,7 @@ router.route('/register').post(
   ])
   ,registerUser);
 
-router.route('/loggin').post(loginUser);
+router.route('/login').post(loginUser);
 
 router.route('/logout').post(jwtVerify,logoutUser);
 

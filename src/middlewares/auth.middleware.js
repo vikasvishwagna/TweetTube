@@ -2,7 +2,9 @@ import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from 'jsonwebtoken'
 import { User } from "../models/user.models.js";
-export const jwtVerify = asyncHandler(async (req, res, next)=>{
+
+
+export const jwtVerify = asyncHandler(async (req, _, next)=>{
  // Steps performed in this middleware
 // 1️. Extract the access token from the browser cookies.
 // 2️. Verify the access token using the secret key from the environment variables.
@@ -14,7 +16,9 @@ export const jwtVerify = asyncHandler(async (req, res, next)=>{
 
 try {
   
-  const token = req.cookie?.accessToken;
+  const token = req.cookies?.accessToken;
+  // console.log("accessToken: ", token)
+  
   if(!token){
     throw new ApiError(400, 'Unauthorized request');
   }
